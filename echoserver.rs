@@ -8,7 +8,7 @@ use std::rt::io::net::tcp::{TcpListener};
 
 use extra::getopts::{getopts, reqopt, opt_str, fail_str};
 
-fn echo<S : Reader + Writer>(stream: &mut S) {
+fn echo<S : Reader + Writer>(mut stream: S) {
     let mut buf = [0, ..1024];
     loop {
         match stream.read(buf) {
@@ -36,8 +36,8 @@ fn main() {
             Some(client) => {
                 let client = Cell::new(client);
                 do spawn {
-                    let mut client = client.take();
-                    echo(&mut client)
+                    let client = client.take();
+                    echo(client)
                 }
             },
             None => println("error in accept"),
