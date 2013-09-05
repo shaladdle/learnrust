@@ -2,7 +2,7 @@ extern mod extra;
 
 use std::os::args;
 use std::cell::Cell;
-use std::rt::io::{Reader, Writer, Listener};
+use std::rt::io::{Reader, Writer, Listener, Acceptor};
 use std::rt::io::net::ip::SocketAddr;
 use std::rt::io::net::tcp::{TcpListener};
 
@@ -18,6 +18,21 @@ fn transfer<R : Reader, W : Writer>(input: @mut R, output: @mut W) {
     }
 }
 
+fn start_echoing<A: Acceptor<S>, S: Reader + Writer + Send>(mut a: A) {
+    loop {
+        match a.accept() {
+            Some(client) => {
+                let client = Cell::new(client);
+                do spawn {
+                    let client = @mut client.take();
+                    transfer(client, client)
+                }
+            }
+            None => println("error in accept"),
+        }
+    }
+}
+
 fn main() {
     let args = args();
     let opts = [reqopt("addr")];
@@ -28,19 +43,9 @@ fn main() {
     let saddr = opt_str(&matches, "addr");
     let addr : SocketAddr = FromStr::from_str(saddr)
         .expect("invalid address: " + saddr);
-    let mut l = TcpListener::bind(addr)
+    let l = TcpListener::bind(addr)
         .expect(format!("failed to listen on socket {}", saddr));
 
-    loop {
-        match l.accept() {
-            Some(client) => {
-                let client = Cell::new(client);
-                do spawn {
-                    let client = @mut client.take();
-                    transfer(client, client)
-                }
-            },
-            None => println("error in accept"),
-        }
-    }
+    let a = l.listen();
+    start_echoing(a);
 }
