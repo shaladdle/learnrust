@@ -2,30 +2,37 @@ extern mod extra;
 
 use std::os::args;
 use std::cell::Cell;
-use std::rt::io::{Reader, Writer, Listener, Acceptor};
+use std::rt::io::{Acceptor, Listener, Reader, Writer};
 use std::rt::io::net::ip::SocketAddr;
-use std::rt::io::net::tcp::{TcpListener};
+use std::rt::io::net::tcp::{TcpListener, TcpStream};
 
 use extra::getopts::{getopts, reqopt, opt_str, fail_str};
 
-fn transfer<R : Reader, W : Writer>(input: @mut R, output: @mut W) {
+fn transfer(input: @mut Reader, output: @mut Writer) {
     let mut buf = [0, ..1024];
     loop {
         match input.read(buf) {
             Some(n) => output.write(buf.slice_to(n)),
-            None => break,
+            None => {
+                println!("Closing client {:?}", input);
+                break;
+            }
         }
     }
 }
 
-fn start_echoing<A: Acceptor<S>, S: Reader + Writer + Send>(mut a: A) {
+trait Stream: Reader + Writer + Send {}
+impl<T: Reader + Writer + Send> Stream for T {}
+
+fn start_echoing<S: Stream>(mut a: ~Acceptor<S>) {
     loop {
         match a.accept() {
             Some(client) => {
+                println!("Connecting to client {:?}", client);
                 let client = Cell::new(client);
                 do spawn {
                     let client = @mut client.take();
-                    transfer(client, client)
+                    transfer(client as @mut Reader, client as @mut Writer)
                 }
             }
             None => println("error in accept"),
@@ -47,5 +54,5 @@ fn main() {
         .expect(format!("failed to listen on socket {}", saddr));
 
     let a = l.listen();
-    start_echoing(a);
+    start_echoing(~a as ~Acceptor<TcpStream>);
 }
