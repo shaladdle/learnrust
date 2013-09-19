@@ -4,7 +4,7 @@
 // their messages verbatim. Start by typing ./echoserver --addr <ip>:<port>
 // 
 // Authored by Adam Wright (adam.austin.wright@gmail.com)
-// and Tim Kuehn (timothy.j.kuehn@gmail.com)
+// and Tim Kuehn (timothy.j.kuehn@gmail.com), 2013
 
 extern mod extra;
 
