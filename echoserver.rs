@@ -9,10 +9,10 @@
 extern mod extra;
 
 use std::os::args;
-use std::cell::Cell;
 use std::rt::io::{Acceptor, Listener, Reader, Stream, Writer};
 use std::rt::io::net::ip::SocketAddr;
 use std::rt::io::net::tcp::TcpListener;
+use std::task::spawn_with;
 
 use extra::getopts::{getopts, reqopt};
 
@@ -40,9 +40,8 @@ fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
         match a.accept() {
             Some(client) => {
                 println!("Connecting to client {:?}", client);
-                let client = Cell::new(client);
-                do spawn {
-                    let client = @mut client.take();
+                do spawn_with(client) |client| {
+                    let client = @mut client;
                     transfer(client, client)
                 }
             }
