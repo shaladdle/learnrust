@@ -4,7 +4,7 @@ use std::os::args;
 use std::cell::Cell;
 use std::rt::io::{Acceptor, Listener, Reader, Stream, Writer};
 use std::rt::io::net::ip::SocketAddr;
-use std::rt::io::net::tcp::{TcpListener, TcpStream};
+use std::rt::io::net::tcp::TcpListener;
 
 use extra::getopts::{getopts, reqopt, opt_str, fail_str};
 
@@ -26,7 +26,7 @@ fn transfer(input: @mut Reader, output: @mut Writer) {
 
 // Accept clients, spawning a routine for each to echo
 // incoming data.
-fn start_echoing<S: Stream + Send>(mut a: ~Acceptor<S>) {
+fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
     loop {
         match a.accept() {
             Some(client) => {
@@ -58,5 +58,5 @@ fn main() {
 
     //----- Main routine
     let a = l.listen();
-    start_echoing(~a as ~Acceptor<TcpStream>);
+    start_echoing(a);
 }
