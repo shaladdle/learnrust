@@ -8,6 +8,9 @@ use std::rt::io::net::tcp::{TcpListener, TcpStream};
 
 use extra::getopts::{getopts, reqopt, opt_str, fail_str};
 
+// General transfer function that transmits data 
+// from a generic reader to a generic writer. Uses @mut
+// so that a Stream can be both read from and written to
 fn transfer(input: @mut Reader, output: @mut Writer) {
     let mut buf = [0, ..1024];
     loop {
@@ -21,6 +24,8 @@ fn transfer(input: @mut Reader, output: @mut Writer) {
     }
 }
 
+// Accept clients, spawning a routine for each to echo
+// incoming data.
 fn start_echoing<S: Stream + Send>(mut a: ~Acceptor<S>) {
     loop {
         match a.accept() {
@@ -38,6 +43,7 @@ fn start_echoing<S: Stream + Send>(mut a: ~Acceptor<S>) {
 }
 
 fn main() {
+    //----- Parse the required argument, "addr", of the form ip:port
     let args = args();
     let opts = [reqopt("addr")];
     let matches = match getopts(args.tail(), opts) {
@@ -50,6 +56,7 @@ fn main() {
     let l = TcpListener::bind(addr)
         .expect(format!("failed to listen on socket {}", saddr));
 
+    //----- Main routine
     let a = l.listen();
     start_echoing(~a as ~Acceptor<TcpStream>);
 }
