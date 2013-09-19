@@ -3,8 +3,8 @@
 // A simple echo server that writes back to clients
 // their messages verbatim. Start by typing ./echoserver --addr <ip>:<port>
 // 
-// Authored by Adam Wright (aawright@andrew.cmu.edu)
-// and Tim Kuehn (tkuehn@cmu.edu), 2013.
+// Authored by Adam Wright (adam.austin.wright@gmail.com)
+// and Tim Kuehn (timothy.j.kuehn@gmail.com)
 
 extern mod extra;
 
