@@ -1,3 +1,11 @@
+// echoserver.rs
+// 
+// A simple echo server that writes back to clients
+// their messages verbatim. Start by typing ./echoserver --addr <ip>:<port>
+// 
+// Authored by Adam Wright (aawright@andrew.cmu.edu)
+// and Tim Kuehn (tkuehn@cmu.edu), 2013.
+
 extern mod extra;
 
 use std::os::args;
@@ -11,7 +19,7 @@ use extra::getopts::{getopts, reqopt, opt_str, fail_str};
 // General transfer function that transmits data 
 // from a generic reader to a generic writer. Uses @mut
 // so that a Stream can be both read from and written to
-fn transfer(input: @mut Reader, output: @mut Writer) {
+fn transfer<R: Reader, W: Writer>(input: @mut R, output: @mut W) {
     let mut buf = [0, ..1024];
     loop {
         match input.read(buf) {
@@ -34,7 +42,7 @@ fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
                 let client = Cell::new(client);
                 do spawn {
                     let client = @mut client.take();
-                    transfer(client as @mut Reader, client as @mut Writer)
+                    transfer(client, client)
                 }
             }
             None => println("error in accept"),
