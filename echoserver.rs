@@ -25,7 +25,8 @@ fn transfer<R: Reader, W: Writer>(input: @mut R, output: @mut W) {
         match input.read(buf) {
             Some(n) => output.write(buf.slice_to(n)),
             None => {
-                println!("Closing client {:?}", input);
+                println!("Finished transferring from {:?} to {:?}",
+                    input, output);
                 break;
             }
         }
