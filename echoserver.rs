@@ -14,7 +14,7 @@ use std::rt::io::{Acceptor, Listener, Reader, Stream, Writer};
 use std::rt::io::net::ip::SocketAddr;
 use std::rt::io::net::tcp::TcpListener;
 
-use extra::getopts::{getopts, reqopt, opt_str, fail_str};
+use extra::getopts::{getopts, reqopt};
 
 // General transfer function that transmits data 
 // from a generic reader to a generic writer. Uses @mut
@@ -51,17 +51,20 @@ fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
     }
 }
 
+static USAGE: &'static str = "Usage: ./echoserver --addr <ip_addr>:<port>";
+
 fn main() {
-    //----- Parse the required argument, "addr", of the form ip:port
+    //----- Parse the required argument, "addr", of the form <ip_addr>:<port>
     let args = args();
     let opts = [reqopt("addr")];
     let matches = match getopts(args.tail(), opts) {
         Ok(m) => m,
-        Err(f) => fail!(fail_str(f)),
+        Err(f) => fail!(f.to_err_msg()),
     };
-    let saddr = opt_str(&matches, "addr");
+    let saddr = matches.opt_str("addr")
+        .expect(USAGE);
     let addr : SocketAddr = FromStr::from_str(saddr)
-        .expect("invalid address: " + saddr);
+        .expect(USAGE);
     let l = TcpListener::bind(addr)
         .expect(format!("failed to listen on socket {}", saddr));
 
