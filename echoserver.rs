@@ -2,7 +2,7 @@ extern mod extra;
 
 use std::os::args;
 use std::cell::Cell;
-use std::rt::io::{Acceptor, Listener, Reader, Writer};
+use std::rt::io::{Acceptor, Listener, Reader, Stream, Writer};
 use std::rt::io::net::ip::SocketAddr;
 use std::rt::io::net::tcp::{TcpListener, TcpStream};
 
@@ -21,10 +21,7 @@ fn transfer(input: @mut Reader, output: @mut Writer) {
     }
 }
 
-trait Stream: Reader + Writer + Send {}
-impl<T: Reader + Writer + Send> Stream for T {}
-
-fn start_echoing<S: Stream>(mut a: ~Acceptor<S>) {
+fn start_echoing<S: Stream + Send>(mut a: ~Acceptor<S>) {
     loop {
         match a.accept() {
             Some(client) => {
