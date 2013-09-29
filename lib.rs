@@ -11,19 +11,14 @@ extern mod extra;
 use std::rt::io::{Acceptor, Reader, Stream, Writer};
 use std::task::spawn_with;
 
-// General transfer function that transmits data 
-// from a generic reader to a generic writer. Uses @mut
-// so that a Stream can be both read from and written to
-fn transfer<R: Reader, W: Writer>(input: @mut R, output: @mut W) {
+// Reads from a stream and writes back
+// to the stream exactly what was read.
+fn echo<S: Stream>(mut client: S) {
     let mut buf = [0, ..1024];
     loop {
-        match input.read(buf) {
-            Some(n) => output.write(buf.slice_to(n)),
-            None => {
-                println!("Finished transferring from {:?} to {:?}",
-                    input, output);
-                break;
-            }
+        match client.read(buf) {
+            Some(n) => client.write(buf.slice_to(n)),
+            None => break,
         }
     }
 }
@@ -31,16 +26,9 @@ fn transfer<R: Reader, W: Writer>(input: @mut R, output: @mut W) {
 // Accept clients, spawning a routine for each to echo
 // incoming data.
 pub fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
-    loop {
-        match a.accept() {
-            Some(client) => {
-                println!("Connecting to client {:?}", client);
-                do spawn_with(client) |client| {
-                    let client = @mut client;
-                    transfer(client, client)
-                }
-            }
-            None => println("error in accept"),
+    for client in a.incoming() {
+        do spawn_with(client.unwrap()) |client| {
+            echo(client)
         }
     }
 }
