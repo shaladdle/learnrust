@@ -6,8 +6,6 @@
 // Authored by Adam Wright (adam.austin.wright@gmail.com)
 // and Tim Kuehn (timothy.j.kuehn@gmail.com), 2013
 
-extern mod extra;
-
 use std::rt::io::{Acceptor, Reader, Stream, Writer};
 use std::task::spawn_with;
 

@@ -28,14 +28,11 @@ fn main() {
         Ok(m) => m,
         Err(f) => fail!(f.to_err_msg()),
     };
-    let saddr = matches.opt_str("addr")
-        .expect(USAGE);
-    let addr : SocketAddr = FromStr::from_str(saddr)
-        .expect(USAGE);
+    let saddr = matches.opt_str("addr").expect(USAGE);
+    let addr : SocketAddr = FromStr::from_str(saddr).expect(USAGE);
     let l = TcpListener::bind(addr)
         .expect(format!("failed to listen on socket {}", saddr));
 
     //----- Main routine
-    let a = l.listen();
-    start_echoing(a);
+    start_echoing(l.listen());
 }
