@@ -8,8 +8,8 @@
 
 use std::io::{Acceptor, Reader, Stream, Writer, Listener, TcpListener, IoResult, IoError, EndOfFile};
 
-// Reads from a stream and writes back
-// to the stream exactly what was read.
+/// Reads from a stream and writes back
+/// to the stream exactly what was read.
 fn echo<S: Stream>(mut client: S) -> IoResult<()> {
     let mut buf = [0, ..1024];
     loop {
@@ -20,6 +20,8 @@ fn echo<S: Stream>(mut client: S) -> IoResult<()> {
     }
 }
 
+/// Checks an IoError to see if it's EOF.
+/// Returns Ok(()) if it is EOF and Err(err) otherwise.
 fn verify_eof(err: IoError) -> IoResult<()> {
     match err.kind {
         EndOfFile => {
@@ -31,15 +33,8 @@ fn verify_eof(err: IoError) -> IoResult<()> {
 }
 
 
-pub fn run(addr: &str, port: u16) {
-    match TcpListener::bind(addr, port) {
-        Ok(l) => start_echoing(l.listen()),
-        Err(e) => println!("{}", e),
-    }
-}
-
-// Accept clients, spawning a routine for each to echo
-// incoming data.
+/// Accept clients, spawning a routine for each to echo
+/// incoming data.
 pub fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
     for client in a.incoming() {
         spawn(proc() {
@@ -50,3 +45,12 @@ pub fn start_echoing<S: Stream + Send, A: Acceptor<S>>(mut a: A) {
         });
     }
 }
+
+/// Starts up an echo server using the given address and port
+pub fn run(addr: &str, port: u16) {
+    match TcpListener::bind(addr, port) {
+        Ok(l) => start_echoing(l.listen()),
+        Err(e) => println!("{}", e),
+    }
+}
+

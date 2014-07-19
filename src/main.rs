@@ -17,6 +17,7 @@ use getopts::{getopts, reqopt, OptGroup, Matches, Fail_, ArgumentMissing, Unreco
 
 mod lib;
 
+/// The list of required arguments to the main function
 fn opts() -> [OptGroup, ..2] {
     [
         reqopt("a", "addr", "The ip address to bind to", ""),
@@ -24,27 +25,33 @@ fn opts() -> [OptGroup, ..2] {
     ]
 }
 
+/// Parse and validate the existence of the arguments to the main function
 fn parse_args() -> IoResult<(String, u16)> {
     match getopts(args().tail(), opts()) {
-        Ok(matches) => Ok((addr(&matches), try!(str_to_port(port(&matches).as_slice())))),
+        Ok(matches) => Ok((addr(&matches), try!(str_to_u16(port(&matches).as_slice())))),
         Err(fail) => get_fail_condition(fail),
     }
 }
 
+/// Get the address string from the matched arguments
 fn addr(matches: &Matches) -> String {
     matches.opt_str("addr").unwrap()
 }
 
+/// Get the port string from the matched arguments
 fn port(matches: &Matches) -> String {
     matches.opt_str("port").unwrap()
 }
 
-fn str_to_port(port: &str) -> IoResult<u16> {
-    from_str(port)
+/// Convert a string to a u16, if possible.
+/// Returns Ok(u16), if successful; otherwise, an IoResult describing the failure to parse 
+fn str_to_u16(s: &str) -> IoResult<u16> {
+    from_str(s)
         .map(|p| Ok(p))
         .unwrap_or(bad_port())
 }
 
+/// Constructs an IoResult error describing an invalid argument for the port
 fn bad_port<T>() -> IoResult<T> {
     Err(IoError {
         kind: InvalidInput,
@@ -53,6 +60,7 @@ fn bad_port<T>() -> IoResult<T> {
     })
 }
 
+/// Constructs an IoResult error describing a failure mode encountered by getopts
 fn get_fail_condition<T>(fail: Fail_) -> IoResult<T> {
     Err(IoError {
             kind: InvalidInput,
@@ -78,6 +86,5 @@ fn main() {
         Ok((addr, port)) => run(addr.as_slice(), port),
         Err(e) => println!("{}", e),
     }
-
 }
 
