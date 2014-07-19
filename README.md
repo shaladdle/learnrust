@@ -2,15 +2,15 @@ learnrust
 =========
 Provides an example echo server written in Rust.
 
-Assuming an installation of Rust master, compile and run as follows:
+## Prerequisites
+Rust nightly; download at [rust-lang.org](http://www.rust-lang.org/)
+[Cargo](crates.io)
 
 ## Building
-From the root directory of a rustpkg workspace in
-which learnrust is installed, type
 ```
-rustpkg install learnrust
+cargo build
 ```
-Then, from the workspace root directory:
+Then, from the root of the directory:
 ```
-bin/learnrust --addr <ip_address>:<port_number>
+target/main --addr <ip_address>:<port_number>
 ```
