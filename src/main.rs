@@ -13,7 +13,8 @@ use lib::run;
 use std::os::args;
 use std::io::{IoResult, IoError, InvalidInput};
 
-use getopts::{getopts, reqopt, OptGroup, Matches, Fail_, ArgumentMissing, UnrecognizedOption, OptionMissing, OptionDuplicated, UnexpectedArgument};
+use getopts::{ArgumentMissing, Fail_, Matches, OptionDuplicated, OptGroup, OptionMissing, 
+    UnexpectedArgument, UnrecognizedOption, getopts, reqopt};
 
 mod lib;
 
@@ -87,4 +88,3 @@ fn main() {
         Err(e) => println!("{}", e),
     }
 }
-
