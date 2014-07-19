@@ -6,7 +6,7 @@
 // Authored by Adam Wright (adam.austin.wright@gmail.com)
 // and Tim Kuehn (timothy.j.kuehn@gmail.com), 2013
 
-use std::io::{Acceptor, Reader, Stream, Writer, Listener, TcpListener, IoResult, IoError, EndOfFile};
+use std::io::{Acceptor, EndOfFile, IoResult, IoError, Listener, Stream, TcpListener};
 
 /// Reads from a stream and writes back
 /// to the stream exactly what was read.
@@ -31,7 +31,6 @@ fn verify_eof(err: IoError) -> IoResult<()> {
         _ => Err(err),
     }
 }
-
 
 /// Accept clients, spawning a routine for each to echo
 /// incoming data.
