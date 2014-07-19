@@ -9,6 +9,7 @@
 extern crate getopts;
 
 use lib::run;
+
 use std::os::args;
 use std::io::{IoResult, IoError, InvalidInput};
 
